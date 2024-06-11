@@ -58,6 +58,13 @@ app.get('/order', isAuthenticated, async (req, res) => {
     return res.json(orders);
 });
 
+// get order by id
+app.get('/order/:id', isAuthenticated, async (req, res) => {
+    const order = await Order.findOne({ _id: req.params.id, user: req.user.email });
+    return res.json(order);
+}
+);
+
 app.listen(PORT, () => {
     console.log(`Product service is running on port ${PORT}`);
 });
