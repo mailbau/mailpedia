@@ -30,6 +30,7 @@ async function connect() {
 }
 connect();
 
+// create product
 app.post('/product/create', isAuthenticated, async (req, res) => {
     const { name, description, price } = req.body;
     const newProduct = new Product({
@@ -42,6 +43,7 @@ app.post('/product/create', isAuthenticated, async (req, res) => {
 }
 );
 
+// buy product
 app.post('/product/buy', isAuthenticated, async (req, res) => {
     const { ids } = req.body;
     const products = await Product.find({ _id: { $in: ids } });
@@ -57,6 +59,12 @@ app.post('/product/buy', isAuthenticated, async (req, res) => {
         channel.ack(data);
     });
     return res.json(order);
+});
+
+// get all products
+app.get('/product/all', isAuthenticated, async (req, res) => {
+    const products = await Product.find({});
+    return res.json(products);
 });
 
 app.listen(PORT, () => {
