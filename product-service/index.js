@@ -86,6 +86,24 @@ app.put('/product/:id', isAuthenticated, async (req, res) => {
     return res.json(product);
 });
 
+// delete product
+app.delete('/product/:id', isAuthenticated, async (req, res) => {
+    const { id } = req.params;
+
+    const product = await Product.findById(id);
+    if (!product) {
+        return res.status(404).json({
+            message: 'Product not found',
+        });
+    } else {
+        await product.deleteOne();
+        return res.json({
+            message: 'Product deleted',
+        });
+    }
+}
+);
+
 app.listen(PORT, () => {
     console.log(`Product service is running on port ${PORT}`);
 });
