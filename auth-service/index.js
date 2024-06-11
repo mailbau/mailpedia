@@ -81,6 +81,26 @@ app.get('/auth/users', async (req, res) => {
     return res.json(users);
 });
 
+// update user
+app.put('/auth/user/:id', async (req, res) => {
+    const { id } = req.params;
+    const { name, email, password } = req.body;
+
+    const user = await User.findById(id);
+    if (!user) {
+        return res.status(404).json({
+            message: 'User not found',
+        });
+    } else {
+        user.name = name;
+        user.email = email;
+        user.password = password;
+
+        await user.save();
+        return res.json(user);
+    }
+}
+);
 
 app.listen(PORT, () => {
     console.log(`Auth service is running on port ${PORT}`);
