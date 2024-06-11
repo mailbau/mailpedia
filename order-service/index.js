@@ -52,6 +52,12 @@ connect().then(() => {
     });
 });
 
+// get all orders
+app.get('/order', isAuthenticated, async (req, res) => {
+    const orders = await Order.find({ user: req.user.email });
+    return res.json(orders);
+});
+
 app.listen(PORT, () => {
     console.log(`Product service is running on port ${PORT}`);
 });
