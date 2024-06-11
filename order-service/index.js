@@ -1,10 +1,10 @@
 const express = require('express');
 const app = express();
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 9090;
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const amqp = require('amqplib');
-const Product = require('./product');
+const Order = require('../order-service/order');
 const isAuthenticated = require('../isAuthenticated');
 app.use(express.json());
 
@@ -12,8 +12,8 @@ var channel, connection;
 
 const connectDB = async () => {
     try {
-        await mongoose.connect('mongodb://localhost:27017/product-service', {});
-        console.log('Connected to Product service database');
+        await mongoose.connect('mongodb://localhost:27017/order-service', {});
+        console.log('Connected to Order service database');
     } catch (error) {
         console.log('Error connecting to database', error);
     }
@@ -25,26 +25,31 @@ async function connect() {
     const amqpServer = "amqp://localhost:5672";
     connection = await amqp.connect(amqpServer);
     channel = await connection.createChannel();
-    await channel.assertQueue('PRODUCT');
+    await channel.assertQueue('ORDER');
 }
-connect();
 
-app.post('/product/create', isAuthenticated, async (req, res) => {
-    const { name, description, price } = req.body;
-    const newProduct = new Product({
-        name,
-        description,
-        price,
+function createOrder(products, userEmail) {
+    let total = 0;
+    for (let i = 0; i < products.length; ++i) {
+        total += products[i].price;
+    }
+    const newOrder = new Order({
+        products,
+        user: userEmail,
+        total_price: total,
     });
-    return res.json(newProduct)
+    newOrder.save();
+    return newOrder;
 }
-);
 
-app.post('/product/buy', isAuthenticated, async (req, res) => {
-    const { ids } = req.body;
-    const products = await Product.find({ _id: { $in: ids } });
-
-
+connect().then(() => {
+    channel.consume('ORDER', (data) => {
+        console.log('Consuming Order Queue')
+        const { products, userEmail } = JSON.parse(data.content);
+        const newOrder = createOrder(products, userEmail);
+        channel.ack(data);
+        channel.sendToQueue('PRODUCT', Buffer.from(JSON.stringify({ newOrder })));
+    });
 });
 
 app.listen(PORT, () => {
