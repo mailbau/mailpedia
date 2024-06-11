@@ -73,6 +73,19 @@ app.get('/product/:id', isAuthenticated, async (req, res) => {
     return res.json(product);
 });
 
+// update product
+app.put('/product/:id', isAuthenticated, async (req, res) => {
+    const { id } = req.params;
+    const { name, description, price } = req.body;
+
+    const product = await Product.findById(id);
+    product.name = name;
+    product.description = description;
+    product.price = price;
+    product.save();
+    return res.json(product);
+});
+
 app.listen(PORT, () => {
     console.log(`Product service is running on port ${PORT}`);
 });
