@@ -17,6 +17,7 @@ const connectDB = async () => {
 
 connectDB();
 
+// login
 app.post('/auth/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -51,7 +52,7 @@ app.post('/auth/login', async (req, res) => {
     }
 });
 
-
+//register
 app.post('/auth/register', async (req, res) => {
     const { name, email, password } = req.body;
 
@@ -73,6 +74,13 @@ app.post('/auth/register', async (req, res) => {
         return res.json(newUser);
     }
 });
+
+// get all users
+app.get('/auth/users', async (req, res) => {
+    const users = await User.find({});
+    return res.json(users);
+});
+
 
 app.listen(PORT, () => {
     console.log(`Auth service is running on port ${PORT}`);
