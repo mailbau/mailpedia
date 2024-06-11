@@ -4,6 +4,8 @@ const PORT = process.env.PORT || 8080;
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const amqp = require('amqplib');
+const Product = require('./product');
+const isAuthenticated = require('../isAuthenticated');
 app.use(express.json());
 
 var channel, connection;
@@ -26,6 +28,24 @@ async function connect() {
     await channel.assertQueue('PRODUCT');
 }
 connect();
+
+app.post('/product/create', isAuthenticated, async (req, res) => {
+    const { name, description, price } = req.body;
+    const newProduct = new Product({
+        name,
+        description,
+        price,
+    });
+    return res.json(newProduct)
+}
+);
+
+app.post('/product/buy', isAuthenticated, async (req, res) => {
+    const { ids } = req.body;
+    const products = await Product.find({ _id: { $in: ids } });
+
+
+});
 
 app.listen(PORT, () => {
     console.log(`Product service is running on port ${PORT}`);
