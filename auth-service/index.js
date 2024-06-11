@@ -102,6 +102,24 @@ app.put('/auth/user/:id', async (req, res) => {
 }
 );
 
+// delete user
+app.delete('/auth/user/:id', async (req, res) => {
+    const { id } = req.params;
+
+    const user = await User.findById(id);
+    if (!user) {
+        return res.status(404).json({
+            message: 'User not found',
+        });
+    } else {
+        await user.deleteOne();
+        return res.json({
+            message: 'User deleted',
+        });
+    }
+}
+);
+
 app.listen(PORT, () => {
     console.log(`Auth service is running on port ${PORT}`);
 });
