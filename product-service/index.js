@@ -67,6 +67,12 @@ app.get('/product/all', isAuthenticated, async (req, res) => {
     return res.json(products);
 });
 
+// get product by id
+app.get('/product/:id', isAuthenticated, async (req, res) => {
+    const product = await Product.findById(req.params.id);
+    return res.json(product);
+});
+
 app.listen(PORT, () => {
     console.log(`Product service is running on port ${PORT}`);
 });
