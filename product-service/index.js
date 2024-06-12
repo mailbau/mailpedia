@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const amqp = require('amqplib');
 const Product = require('./product');
 const isAuthenticated = require('../isAuthenticated');
+
 app.use(express.json());
 
 var order;
